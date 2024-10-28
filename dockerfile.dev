@@ -1,0 +1,10 @@
+# 開発用Dockerfile
+FROM golang:1.23-bookworm
+
+WORKDIR /code
+
+RUN apt-get update && \
+    apt-get install -y ffmpeg 
+
+CMD ["bash"]
+

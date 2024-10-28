@@ -1,0 +1,28 @@
+# ビルドステージ
+FROM golang:1.23.2 AS builder
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# Goのモジュールファイルをコピー
+COPY go.mod ./
+COPY go.sum ./
+RUN go mod download
+
+# ソースコードをコピー
+COPY . .
+
+# Goプログラムをビルド
+RUN go build -o /main
+
+# ランタイムステージ
+FROM debian:bullseye-slim
+
+# 必要なパッケージをインストール
+RUN apt-get update && apt-get install -y ffmpeg && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# ビルドされたバイナリをコピー
+COPY --from=builder /main /usr/local/bin/main
+
+# コンテナ起動時に実行するコマンド
+ENTRYPOINT ["main"]
